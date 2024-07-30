@@ -1,0 +1,29 @@
+[package]
+name = "ikedi"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+authors = ["Sede <4968379+styvane@users.noreply.github.com>"]
+publish = false
+keywords = ["medical", "clinical-research", "dicom"]
+default-run = "ikedi"
+categories = ["command-line-utilities"]
+license = "AGPL-3.0-or-later"
+
+[[bin]]
+name = "ikedi"
+path = "bin/ikedi.rs"
+
+[dependencies]
+clap = { version = "4.5.11", features = ["derive"] }
+walkdir = "2"
+
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "deny"
+
+[lints.clippy]
+missing_docs_in_private_items = "warn"
+missing_const_for_fn = "deny"
+unwrap_used = "warn"
