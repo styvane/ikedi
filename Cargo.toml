@@ -16,6 +16,7 @@ path = "bin/ikedi.rs"
 
 [dependencies]
 clap = { version = "4.5.11", features = ["derive"] }
+dicom-object = "0.7.0"
 walkdir = "2"
 
 
