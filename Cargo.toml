@@ -14,11 +14,24 @@ license = "AGPL-3.0-or-later"
 name = "ikedi"
 path = "bin/ikedi.rs"
 
+[profile.dev.package]
+insta.opt-level = 3
+similar.opt-level = 3
+
 [dependencies]
 clap = { version = "4.5.11", features = ["derive"] }
-dicom-object = "0.7.0"
+dicom = "0.7.0"
 walkdir = "2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0.86"
 
+[dependencies.tokio]
+version = "1.39.2"
+features = ["sync", "rt", "macros", "rt-multi-thread", "io-util", "io-std"]
+
+[dev-dependencies]
+insta = { version = "1.39.0", features = ["yaml"] }
 
 [lints.rust]
 unsafe_code = "forbid"

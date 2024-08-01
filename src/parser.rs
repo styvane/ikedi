@@ -1,12 +1,12 @@
-//! This module implements the parsing logic for DICOM files
-
-use std::error::Error;
+//! This module implements the parsing logic for DICOM files.
 use std::path::Path;
 
-use dicom_object::{FileDicomObject, InMemDicomObject};
-use walkdir::{DirEntry, WalkDir};
+use anyhow::Result;
+use dicom::core::Tag;
+use dicom::object::{FileDicomObject, InMemDicomObject};
 
-use crate::error::Result;
+use serde::Serialize;
+use walkdir::{DirEntry, WalkDir};
 
 /// Recursively read the directory.
 pub fn read_directory(source: impl AsRef<Path>) -> impl Iterator<Item = DirEntry> {
@@ -17,14 +17,17 @@ pub fn read_directory(source: impl AsRef<Path>) -> impl Iterator<Item = DirEntry
 }
 
 /// DICOM Data type.
+#[derive(Debug, Serialize)]
 pub struct DicomData<P> {
-    /// Absolute path to the DICOM data in the catolog.
+    /// Absolute path to the DICOM file in the catolog.
     path: P,
+    #[serde(flatten)]
     /// Patient data
     pub patient: Patient,
 }
 
 /// Patient represents the patient data.
+#[derive(Debug, Serialize)]
 pub struct Patient {
     /// The patient name
     pub name: String,
@@ -33,16 +36,10 @@ pub struct Patient {
 }
 
 impl TryFrom<FileDicomObject<InMemDicomObject>> for Patient {
-    type Error = Box<dyn Error>;
+    type Error = anyhow::Error;
     fn try_from(file_obj: FileDicomObject<InMemDicomObject>) -> Result<Self> {
-        let name = file_obj
-            .element_by_name("PATIENT_NAME")?
-            .to_str()?
-            .to_string();
-        let id = file_obj
-            .element_by_name("PATIENT_ID")?
-            .to_str()?
-            .to_string();
+        let name = file_obj.element(Tag(0x0010, 0x0010))?.to_str()?.to_string();
+        let id = file_obj.element(Tag(0x0010, 0x0020))?.to_str()?.to_string();
         Ok(Self { name, id })
     }
 }
@@ -50,11 +47,6 @@ impl<P> DicomData<P>
 where
     P: AsRef<Path>,
 {
-    /// Returns the path to the DICOM data in the catalog
-    pub fn path(&self) -> impl AsRef<Path> + '_ {
-        &self.path
-    }
-
     /// Creates new [`DicomData`]
     pub const fn new(path: P, patient: Patient) -> Self {
         Self { path, patient }
@@ -62,4 +54,16 @@ where
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use super::read_directory;
+    use crate::DicomFileProcessor;
+
+    #[test]
+    fn test_parser() -> anyhow::Result<()> {
+        for entry in read_directory("testdata/subject2/") {
+            let data = entry.path().open()?;
+            insta::assert_debug_snapshot!(data);
+        }
+        Ok(())
+    }
+}

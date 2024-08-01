@@ -1,0 +1,11 @@
+---
+source: src/parser.rs
+expression: data
+---
+DicomData {
+    path: "test_data/subject2/98.12.2/56364820.dcm",
+    patient: Patient {
+        name: "",
+        id: "98.12.21",
+    },
+}
