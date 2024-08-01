@@ -10,9 +10,9 @@ use tokio::{io, task};
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Cli::new();
-    let Cli { path } = &args;
+    let Cli { path, ratelimit } = args;
 
-    let (tx, rx) = mpsc::channel(1000);
+    let (tx, rx) = mpsc::channel(ratelimit);
 
     for file in parser::read_directory(path) {
         task::spawn(processor::process_file(file.into_path(), tx.clone()));

@@ -8,6 +8,10 @@ use clap::Parser;
 pub struct Cli {
     /// Path represents the directory path to the DICOM files.
     pub path: String,
+
+    /// Backpressure control
+    #[arg(short, long, default_value_t = 1000)]
+    pub ratelimit: usize,
 }
 
 impl Cli {
